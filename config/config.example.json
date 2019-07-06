@@ -1,0 +1,29 @@
+{
+    "database": {
+        "host": "127.0.0.1",
+        "user": "redbot",
+        "password": "Password1!",
+        "name": "redbot",
+        "port": "3306",
+        "connections": 10
+    },
+    "bot": {
+        "ownerID": "insert the ID of the bot's owner",
+        "token": "njhx873hmpq20okxhm.j9328mjenx92i3",
+        "clientId": "BOT ID",
+        "description": "The reddest of the bots",
+        "prefix": "-",
+        "ready": "Bot is Ready!!!",
+        "defaultChannel": "COMMANDS CHANNEL ID",
+        "logChannel": "HIDDEN LOG CHANNEL ID",
+        "adminIds": [],
+        "support": []
+    },
+    "server": {
+        "port": 7654,
+        "subscriberRole": "SUBSCRIBER ROLE ID",
+        "serverId": "SERVER ID",
+        "modRole": "MOD ROLE BY NAME",
+        "adminRole": "ADMIN ROLD BY NAME"
+    }
+}

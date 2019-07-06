@@ -1,0 +1,31 @@
+{
+  "name": "redbot",
+  "version": "0.0.1",
+  "description": "Bot used for tracking authorization to website from discord roles",
+  "main": "app.js",
+  "dependencies": {
+    "better-sqlite-pool": "github:eslachance/better-sqlite-pool",
+    "chalk": "^2.4.2",
+    "child-process": "^1.0.2",
+    "discord.js": "^11.5.1",
+    "enmap": "^4.8.7",
+    "express": "^4.17.1",
+    "fuse.js": "^3.4.5",
+    "ini": "^1.3.5",
+    "moment": "^2.24.0",
+    "ms": "^2.1.2",
+    "mysql": "^2.17.1",
+    "node-gyp": "^4.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "woocomerce",
+    "discord",
+    "subscription"
+  ],
+  "author": "Fallenflash",
+  "license": "ISC"
+}

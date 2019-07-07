@@ -4,7 +4,7 @@ exports.respond = (client, message) => {
 
     switch (type) {
         case "getMembers":
-            populateDB();
+            client.populateDB(client.config.server.serverId);
             break;
         case "message":
             client.logger.log(data);
@@ -48,25 +48,4 @@ exports.respond = (client, message) => {
     }
 
 
-    function populateDB() {
-        let guild = client.guilds.get(client.config.server.serverId);
-        guild.fetchMembers();
-        userDB = guild.members.filter(member => !member.user.bot).map((m) => {
-            let member = [
-                m.id,
-                m.user.username,
-                m.user.discriminator,
-                m.joinedAt,
-                m.user.createdAt,
-                m.user.avatarURL
-            ];
-            return member;
-        });
-        message = {
-            type: "fillDb",
-            data: JSON.stringify(userDB)
-        };
-        client.database.send(message);
-
-    }
 };

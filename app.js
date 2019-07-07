@@ -1,9 +1,8 @@
 //first import configuration
 if (Number(process.version.slice(1).split(".")[0]) < 8) throw new Error("Node 8.0.0 or higher is required. Update Node on your system.");
 
-// Load up the discord.js library
+// Load up the discord.js library and other dependencies
 const discord = require("discord.js");
-// We also load the rest of the things we need in this file:
 const {
     promisify
 } = require("util");
@@ -11,15 +10,20 @@ const readdir = promisify(require("fs").readdir);
 const Enmap = require("enmap");
 const cp = require('child_process');
 const messages = require('./src/modules/messages.js');
-
-
-//bind config to client for easy transport
+const ini = require('ini');
+const fs = require('fs');
+// initialize discord object
 const client = new discord.Client();
-const configFile = require('./config/config.json');
+
+// load and parse and bind config file to the client
+const configFile = ini.parse(fs.readFileSync('./config/config.ini', 'utf-8'));
 client.config = require('./src/modules/config.js')(configFile);
+
+//bind other helper modules to the client
 client.logger = require("./src/modules/Logger");
 client.functions = require("./src/modules/functions.js")(client);
 client.pool = require("./src/modules/db.js")(client);
+
 //webserver starting and handeling
 client.server = cp.fork('./src/process/webserver.js');
 client.server.send('start');

@@ -1,6 +1,7 @@
-const config = require('../../config/config.json');
 const mysql = require('mysql');
 const fs = require('fs');
+const ini = require('ini');
+const config = ini.parse(fs.readFileSync(__dirname + '/../../config/config.ini', 'utf-8'));
 const logger = require('./../modules/logger.js');
 const schemaVersion = 1;
 let populated = null;

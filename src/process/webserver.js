@@ -1,7 +1,10 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-var config = require('../../config/config.json');
+const express = require('express');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const app = express();
+const ini = require('ini');
+const config = ini.parse(fs.readFileSync(__dirname + '/../../config/config.ini', 'utf-8'))
 const logger = require('./../modules/logger.js');
 
 process.on('message', (m) => {
@@ -10,21 +13,33 @@ process.on('message', (m) => {
             start();
             break;
     }
-})
+});
+app.use(helmet());
 app.use(bodyParser.json());
 
-app.post('/', function (req, res) {
+app.post('/woocomerce', function (req, res) {
 
     res.json({
-        message: 'Message recieved by Bitbot.'
+        message: 'Message Recieved by Redbot'
     });
-    // console.log(req.body);
-    // Turn the response into something easier to work with.
-    let message = {
-        "body": req.body
-    };
-    logger.log(message);
-    post(message);
+    if (config.webServer.webhookSource !== req.headers['x-wc-webhook-source'] &&
+        config.webServer.webhookSource !== false) {
+        logger.warn(`Webhook from ${req.headers['x-wc-webhook-source']} recieved. source not verified`);
+    } else {
+        if (req.headers['x-wc-webhook-resource'] !== "order") {
+            logger.debug(`webhook recieved for rescource: ${req.headers['x-wc-webhook-resource']} ignored.`);
+        } else {
+            let message = {
+                "headers": {
+                    "source": req.headers['x-wc-webhook-source'],
+                    "rescource": req.headers['x-wc-webhook-resource'],
+                    "headers": req.headers
+                },
+                "body": req.body
+            };
+        }
+        console.log(message);
+    }
 });
 
 // Start listening on the configured port.

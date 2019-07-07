@@ -6,6 +6,7 @@ const moment = require("moment");
 
 exports.log = (content, type = "log") => {
   const timestamp = `[${moment().format("YYYY-MM-DD HH:mm:ss")}]:`;
+  content = JSON.stringify(content);
   switch (type) {
     case "log": {
       return console.log(`${timestamp} ${chalk.bgBlue(type.toUpperCase())} ${content} `);
@@ -25,9 +26,10 @@ exports.log = (content, type = "log") => {
     case "ready": {
       return console.log(`${timestamp} ${chalk.black.bgGreen(type.toUpperCase())} ${content}`);
     }
-    default: throw new TypeError("Logger type must be either warn, debug, log, ready, cmd or error.");
+    default:
+      throw new TypeError("Logger type must be either warn, debug, log, ready, cmd or error.");
   }
-}; 
+};
 
 exports.error = (...args) => this.log(...args, "error");
 

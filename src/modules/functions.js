@@ -176,6 +176,28 @@ module.exports = (client) => {
         return false;
     };
 
+    client.populateDB = (guild) => {
+        guild = client.guilds.get(guild);
+        guild.fetchMembers();
+        userDB = guild.members.filter(member => !member.user.bot).map((m) => {
+            let member = [
+                m.id,
+                m.user.username,
+                m.user.discriminator,
+                m.joinedAt,
+                m.user.createdAt,
+                m.user.avatarURL
+            ];
+            return member;
+        });
+        message = {
+            type: "fillDb",
+            data: JSON.stringify(userDB)
+        };
+        client.database.send(message);
+
+    }
+
     /* MISCELANEOUS NON-CRITICAL FUNCTIONS */
 
     // EXTENDING NATIVE TYPES IS BAD PRACTICE. Why? Because if JavaScript adds this

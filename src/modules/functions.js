@@ -4,32 +4,76 @@ module.exports = (client) => {
         const guild = client.guilds.get(client.config.server.serverId);
         role = guild.roles.get(role);
         const member = guild.members.get(user);
-        if (member && !member.roles.has(role.id)) {
-            await member.addRole(role)
-                .catch((err) => {
-                    throw new Error(err)
-                });
-            return {
-                member: member.displayName,
-                role: role.name
-            };
+        if (member) {
+            if (!member.roles.has(role.id)) {
+                await member.addRole(role)
+                    .catch((err) => {
+                        throw new Error(err)
+                    });
+                return {
+                    member: member.displayName,
+                    role: role.name,
+                    status: 'updated'
+                };
+            } else {
+                return {
+                    member: member.displayName,
+                    role: role.name,
+                    status: 'not updated'
+                };
+            }
+        } else {
+            return false;
         }
     }
     client.removeRole = async (user, role) => {
         const guild = client.guilds.get(client.config.server.serverId);
         role = guild.roles.get(role);
         const member = guild.members.get(user);
-        if (member && member.roles.has(role.id)) {
-            await member.removeRole(role)
-                .catch((err) => {
-                    throw new Error(err)
-                });
-            return {
-                member: member.displayName,
-                role: role.name
-            };
-
+        if (member) {
+            if (member.roles.has(role.id)) {
+                await member.removeRole(role)
+                    .catch((err) => {
+                        throw new Error(err)
+                    });
+                return {
+                    member: member.displayName,
+                    role: role.name,
+                    status: 'updated'
+                };
+            } else {
+                return {
+                    member: member.displayName,
+                    role: role.name,
+                    status: 'not updated'
+                };
+            }
         }
+        return false;
+    }
+    client.findMemberByName = async (user, guild = client.config.server.serverId) => {
+        const regex = /((?!_)[^@#:]{1,32}(?<!_))#?(\d{4})?/gui;
+        const match = regex.exec(user.trim().toLowerCase());
+        let result;
+        if (match[0] && match[2]) {
+            result = await client.guilds.get(guild)
+                .members.find(member => member.user.tag === match[0]);
+        } else if (match[0] && !match[2]) {
+            result = await client.guilds.get(guild)
+                .members.find(member => member.displayName === match[1]);
+            if (!result) {
+                result = await client.guilds.get(guild)
+                    .members.find(member => member.user.username === match[1]);
+            }
+        }
+        if (result) {
+            return result;
+        } else {
+            client.logger.warn(`unable to find user ${user.trim()}`);
+            return false;
+        }
+
+
     }
     /*
     PERMISSION LEVEL FUNCTION

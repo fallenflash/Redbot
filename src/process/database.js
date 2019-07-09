@@ -1,4 +1,3 @@
-const mysql = require('mysql');
 const fs = require('fs');
 const ini = require('ini');
 const config = ini.parse(fs.readFileSync(__dirname + '/../../config/config.ini', 'utf-8'));
@@ -62,6 +61,9 @@ process.on('message', (m) => {
       break;
     case "ready":
       init();
+      break;
+    case "checkRoles":
+      dbFunctions.checkActive(data);
       break;
     default:
       logger.warn(type = ":" + data);
@@ -129,22 +131,21 @@ var dbFunctions = {
     } else {
       sql = "SELECT `user`, `active` FROM `active` WHERE `updated` > CURRENT_TIMESTAMP() - INTERVAL 5 MINUTE;";
     }
-    conn.query(sql, function (err, res) {
-      if (err) throw err;
-      if (res) {
-        const roleMessage = {
-          add: [],
-          remove: []
-        };
-        res.forEach((item) => {
-          if (item.active === 0) roleMessage.remove.push(item.user);
-          if (item.active === 1) roleMessage.add.push(item.user);
-        });
-        process.send({
-          type: "updateSubscription",
-          data: JSON.stringify(roleMessage)
-        });
-      }
+    conn.query(sql).then(res => {
+      const roleMessage = {
+        add: [],
+        remove: []
+      };
+      res.forEach((item) => {
+        if (item.active === 0) roleMessage.remove.push(item.user);
+        if (item.active === 1) roleMessage.add.push(item.user);
+      });
+      process.send({
+        type: "updateSubscription",
+        data: JSON.stringify(roleMessage)
+      });
+    }).catch(err => {
+      logger.error(err);
     });
   }
 }

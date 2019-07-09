@@ -1,4 +1,4 @@
-exports.run = (client, message, args) => {
+exports.run = async (client, message, args) => {
     const ms = require('ms');
     var users = message.mentions.users;
     var roles = message.mentions.roles;
@@ -62,22 +62,18 @@ exports.run = (client, message, args) => {
         ON a.user = b.user AND a.end = b.end 
         SET a.end = DATE_SUB(a.end, INTERVAL ? SECOND)
         WHERE a.user IN (?);`;
-        values = [ids.join(','), timeDiff];
-        console.log(values);
+        values = [timeDiff, ids.join(',')];
     } else {
         alert.push("I cant seem to figure out who your trying to add time to");
         client.logger.log("error with username input", "error");
     }
+    if (!sql || !values) {
+        alert.push("error with your sql query -- please contact bot administrator")
+    } else if (sql !== undefined && values !== undefined && alert.length === 0) {
 
-    if (sql !== undefined && values !== undefined && alert.length === 0) {
-
-        client.pool.query({
-            sql: sql,
-            values: values
-        }, function (error, results, fields) {
-            if (error) {
-                client.logger.error("mysql error" + error, "error");
-            } else {
+        await client.pool.query(sql, values)
+            .then(results => {
+                console.log(results);
                 if (ids.length > 0 && results.affectedRows == ids.length) {
                     result = "All subscriptions successfully edited.";
                 } else if (mentions[0] == "all" || mentions.length == 0) {
@@ -85,21 +81,16 @@ exports.run = (client, message, args) => {
                 } else if (mentions[0] == "active") {
                     result = "Decreased all active subscription time by ${addtime}";
                 }
-            }
-        });
-
-    } else if (!sql || !values) {
-        alert.push("error with your sql query -- please contact bot administrator")
-    }
-
-    if (result) {
-        client.database.message({
-            type: "checkRoles",
-            message: ids.length > 0 ? ids.join(",") : null
-        });
-        message.channel.send(result);
-    } else {
-        message.channel.send(JSON.stringify([result, alert]));
+                client.database.send({
+                    type: "checkRoles",
+                    message: ids.length > 0 ? ids.join(",") : null
+                });
+                message.channel.send(result);
+            }).catch(err => {
+                console.log(err);
+                client.logger.error("mysql error" + err, "error");
+                message.channel.send(JSON.stringify([result, alert]));
+            });
     }
 };
 exports.conf = {

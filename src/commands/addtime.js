@@ -69,7 +69,6 @@ exports.run = (client, message, args) => {
         values = [
             timeDiff,
             ids.join(",")
-
         ];
     } else {
         alert.push("I cant seem to figure out who your trying to add time to");
@@ -78,35 +77,34 @@ exports.run = (client, message, args) => {
 
     if (sql !== null && values !== null && alert.length === 0) {
 
-        client.pool.query({
-            sql,
-            values
-        }, (error, results) => {
-            if (error) {
-                client.logger.error("mysql error" + error);
-            } else if (ids.length > 0 && results.affectedRows === ids.length) {
-                result = "All subscriptions successfully edited.";
-            } else if (mentions[0] === "all" || mentions.length === 0) {
-                result = "added ${addtime} to every members subscriptions";
-            } else if (mentions[0] === "active") {
-                result = "increased all active subscription time by ${addtime}";
-            }
-        });
+        client.pool.query(sql, values)
+            .then(results => {
+                console.log(results);
+                if (ids.length > 0 && results.affectedRows === ids.length) {
+                    result = "All subscriptions successfully edited.";
+                } else if (mentions[0] === "all" || mentions.length === 0) {
+                    result = "added ${addtime} to every members subscriptions";
+                } else if (mentions[0] === "active") {
+                    result = "increased all active subscription time by ${addtime}";
+                }
+                client.database.send({
+                    type: "checkRoles",
+                    message: ids.length > 0 ? ids.join(",") : null
+                });
+                message.channel.send(result);
+            }).catch(err => {
+                console.log(err);
+                client.logger.error("mysql error" + err);
+            });
 
     } else if (!sql || !values) {
         alert.push("error with your sql query -- please contact bot administrator");
     }
 
-    if (result) {
-        client.database.message({
-            type: "checkRoles",
-            message: ids.length > 0 ? ids.join(",") : null
-        });
-        message.channel.send(result);
-    } else {
-        message.channel.send(JSON.stringify([
+    if (alert.length > 0) {
+        message.channel.send(JSON.stringify(
             alert
-        ]));
+        ));
     }
 };
 exports.conf = {

@@ -20,7 +20,7 @@ const configFile = ini.parse(fs.readFileSync(__dirname + '/config/config.ini', '
 client.config = require(__dirname + '/src/modules/config.js')(configFile);
 
 //bind other helper modules to the client
-client.logger = require(__dirname + "/src/modules/Logger.js");
+client.logger = require(__dirname + "/src/modules/logger.js");
 client.functions = require(__dirname + "/src/modules/functions.js")(client);
 client.pool = require(__dirname + "/src/modules/db.js")(client);
 

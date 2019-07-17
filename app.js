@@ -9,30 +9,30 @@ const {
 const readdir = promisify(require("fs").readdir);
 const Enmap = require("enmap");
 const cp = require('child_process');
-const messages = require('./src/modules/messages.js');
+const messages = require(__dirname + '/src/modules/messages.js');
 const ini = require('ini');
 const fs = require('fs');
 // initialize discord object
 const client = new discord.Client();
 
 // load and parse and bind config file to the client
-const configFile = ini.parse(fs.readFileSync('./config/config.ini', 'utf-8'));
-client.config = require('./src/modules/config.js')(configFile);
+const configFile = ini.parse(fs.readFileSync(__dirname + '/config/config.ini', 'utf-8'));
+client.config = require(__dirname + '/src/modules/config.js')(configFile);
 
 //bind other helper modules to the client
-client.logger = require("./src/modules/Logger");
-client.functions = require("./src/modules/functions.js")(client);
-client.pool = require("./src/modules/db.js")(client);
+client.logger = require(__dirname + "/src/modules/Logger");
+client.functions = require(__dirname + "/src/modules/functions.js")(client);
+client.pool = require(__dirname + "/src/modules/db.js")(client);
 
 //webserver starting and handeling
-client.server = cp.fork('./src/process/webserver.js');
+client.server = cp.fork(__dirname + '/src/process/webserver.js');
 client.server.send('start');
 client.server.on('message', (m) => {
     messages.respond(client, m);
 });
 
 //handle the database watcher thread 
-client.database = cp.fork('./src/process/database.js');
+client.database = cp.fork(__dirname + '/src/process/database.js');
 client.database.on('message', (m) => {
     messages.respond(client, m);
 });
@@ -49,7 +49,7 @@ const init = async () => {
 
     // Here we load **commands** into memory, as a collection, so they're accessible
     // here and everywhere else.
-    const cmdFiles = await readdir("./src/commands/");
+    const cmdFiles = await readdir(__dirname + "/src/commands/");
     client.logger.log(`Loading a total of ${cmdFiles.length} commands.`);
     cmdFiles.forEach(f => {
         if (!f.endsWith(".js")) return;
@@ -58,12 +58,12 @@ const init = async () => {
     });
 
     // Then we load events, which will include our message and ready event.
-    const evtFiles = await readdir("./src/events/");
+    const evtFiles = await readdir(__dirname + "/src/events/");
     client.logger.log(`Loading a total of ${evtFiles.length} events.`);
     evtFiles.forEach(file => {
         const eventName = file.split(".")[0];
         client.logger.log(`Loading Event: ${eventName}`);
-        const event = require(`./src/events/${file}`);
+        const event = require(__dirname + `/src/events/${file}`);
         // Bind the client to any event, before the existing arguments
         // provided by the discord.js event. 
         // This line is awesome by the way. Just sayin'.
@@ -78,7 +78,6 @@ const init = async () => {
     }
     //begin discord bot
     client.login(client.config.token);
-
 };
 
 

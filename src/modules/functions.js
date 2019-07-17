@@ -209,8 +209,8 @@ module.exports = (client) => {
         if (command.shutdown) {
             await command.shutdown(client);
         }
-        const mod = require.cache[require.resolve(`./src/commands/${commandName}`)];
-        delete require.cache[require.resolve(`./src/commands/${commandName}.js`)];
+        const mod = require.cache[require.resolve(__dirname + `/src/commands/${commandName}`)];
+        delete require.cache[require.resolve(__dirname + `/src/commands/${commandName}.js`)];
         for (let i = 0; i < mod.parent.children.length; i++) {
             if (mod.parent.children[i] === mod) {
                 mod.parent.children.splice(i, 1);

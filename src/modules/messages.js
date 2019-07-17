@@ -1,7 +1,7 @@
 exports.respond = async (client, message) => {
     let type = message.type;
     let data = message.data;
-    client.logger.log(`recieved ${type} message with data:`);
+    client.logger.log(`received ${type} message with data:`);
     client.logger.log(data);
     switch (type) {
         case "getMembers":
@@ -38,7 +38,7 @@ exports.respond = async (client, message) => {
             }
 
             break;
-        case "webhookRecieved":
+        case "webhookReceived":
             data = JSON.parse(data);
             const moment = require('moment');
             const created = moment(data.created);
@@ -68,17 +68,17 @@ exports.respond = async (client, message) => {
                         client.logger.error(err)
                     });
                 await client.pool.query(`INSERT IGNORE INTO subscriptions (user,created_by,woocomerce_id, begin, end)
-                                        VALUES (?,?,?,?,?)`, [user.id, 'webhook', data.wooComerceID, begin, end])
+                                        VALUES (?,?,?,?,?)`, [user.id, 'webhook', data.wooCommerceID, begin, end])
                     .then(res => {
                         if (res.affectedRows === 1) {
-                            client.logger.log(`sucessfully added subscription for ${user.displayName}`);
+                            client.logger.log(`successfully added subscription for ${user.displayName}`);
                         }
                     })
                     .catch(err => {
                         client.logger.error(`issue adding subscription from webhook ${err}`);
                     })
             } else {
-                client.logger.warn(`new subsctiption webhook recieved for ${data.user}, unable to find user to update`);
+                client.logger.warn(`new subscription webhook received for ${data.user}, unable to find user to update`);
 
             }
             break;
@@ -88,4 +88,4 @@ exports.respond = async (client, message) => {
     }
 
 
-};
+}

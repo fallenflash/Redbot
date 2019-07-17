@@ -7,7 +7,7 @@ const ini = require('ini');
 const config = ini.parse(fs.readFileSync(__dirname + '/../../config/config.ini', 'utf-8'));
 const logger = require('./../modules/logger.js');
 
-process.on('message', (m) => {
+process.on('message', async (m) => {
     switch (m) {
         case 'start':
             start();
@@ -20,32 +20,31 @@ app.use(bodyParser.json());
 app.post('/woocomerce', function (req, res) {
 
     res.json({
-        message: 'Message Recieved by Redbot'
+        message: 'Message Received by Redbot'
     });
     if (config.webServer.webhookSource === req.headers['x-wc-webhook-source'] ||
         config.webServer.webhookSource === 'false') {
         if (req.headers['x-wc-webhook-resource'] !== "order") {
-            logger.debug(`webhook recieved for rescource: ${req.headers['x-wc-webhook-resource']} ignored.`);
+            logger.debug(`webhook received for resources: ${req.headers['x-wc-webhook-resource']} ignored.`);
 
         } else {
             if (req.body.status === "processing") {
                 let message = {
-                    wooComerceID: req.body.id,
+                    wooCommerceID: req.body.id,
                     created: req.body.date_created_gmt,
                     user: req.body.customer_note,
                     purchases: req.body.line_items.map(item => item.name)
 
                 };
-                console.log(message);
                 process.send({
-                    "type": "webhookRecieved",
+                    "type": "webhookReceived",
                     "data": JSON.stringify(message)
                 });
 
             }
         }
     } else {
-        logger.warn(`Webhook from ${req.headers['x-wc-webhook-source']} recieved. source not verified`);
+        logger.warn(`Webhook from ${req.headers['x-wc-webhook-source']} received. source not verified`);
 
     }
 

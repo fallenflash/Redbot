@@ -11,7 +11,4 @@ module.exports = (client) => {
     } else {
         client.logger.log(message, "warning");
     }
-
-
-
 }

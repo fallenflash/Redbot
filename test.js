@@ -5,7 +5,7 @@ const config = ini.parse(fs.readFileSync(__dirname + '/config/config.ini', 'utf-
 const tester = {
     config: config
 };
-const pool = require('./src/modules/db.js')(tester);
+const pool = require(__dirname + '/src/modules/db.js')(tester);
 const now = moment();
 async function test() {
     pool.query(`Select final from active LIMIT 1`).then(res => {

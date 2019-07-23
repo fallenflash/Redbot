@@ -2,36 +2,35 @@ const fs = require('fs');
 const ini = require('ini');
 const config = ini.parse(fs.readFileSync(__dirname + '/../../config/config.ini', 'utf-8'));
 const logger = require('./../modules/logger.js');
-const schemaVersion = 1;
-let populated = null;
+const botVersion = 1;
 const trick = {
   config: config,
+  logger: logger
 }
 var conn = require("../modules/db.js")(trick);
 
 function init() {
-  conn.query('SELECT `version`, `populated` FROM `schema;', function (err, results, fields) {
-    if (err) {
+  conn.query('SELECT `version`, `populated` FROM `bot`;')
+    .then(results => {
+      let version = results[0].version;
+      let populated = results[0].populated;
+      if (version == botVersion) {
+        logger.log('Bot version ' + version + ',and up to date');
+      }
+      if (populated === 0) {
+        message = {
+          type: 'getMembers',
+          data: 0
+        };
+        process.send(message);
+      }
+    }).catch(err => {
       if (err.errno == 1146) {
         dbFunctions.create();
       } else {
         throw err;
       }
-    }
-
-    var version = results[0].version;
-    populated = results[0].populated;
-    if (version == schemaVersion) {
-      logger.log('Schema version ' + version + ',and up to date', "log");
-    }
-    if (populated === 0) {
-      message = {
-        type: 'getMembers',
-        data: 0
-      };
-      process.send(message);
-    }
-  });
+    });
 
   dbFunctions.checkActive('first');
 
@@ -44,7 +43,7 @@ function init() {
 
 
 process.on('message', (m) => {
-  logger.log("database worker recieved message " + m.type, "log");
+  logger.debug("database worker recieved message " + m.type, "log");
   var type = m.type;
   var data = m.data;
   switch (type) {
@@ -74,15 +73,24 @@ process.on('message', (m) => {
 
 var dbFunctions = {
   create: function () {
-    var sql = fs.readFileSync(__dirname + '/../utils/create.sql').toString();
-    conn.query(sql, function (err, results) {
-      if (err) throw err
-      // `results` is an array with one element for every statement in the query:
-      var i;
-      for (i = 0; i < results.length; i++) {
-        logger.debug(results[i]);
-      }
-    });
+    const sql = fs.readFileSync(__dirname + '/../utils/create.sql').toString();
+    const sqlArray = sql.split(";");
+    for (i = 0; i < sqlArray.length; i++) {
+
+      conn.query(sqlArray[i])
+        .then(res => {
+          logger.debug(res);
+        }).catch(err => {
+          logger.error(err);
+        })
+    }
+
+    logger.log('database created');
+    message = {
+      type: 'getMembers',
+      data: 0
+    };
+    process.send(message);
   },
   populate: function (users) {
     users = JSON.parse(users);
@@ -115,7 +123,7 @@ var dbFunctions = {
       if (err) throw err;
       if (result) logger.log('created ' + result.affectedRows + ' starter subscriptions for placeholding');
     });
-    conn.query("UPDATE `schema` set `populated` = '1'");
+    conn.query(`UPDATE bot set populated = '1'`);
     process.send({
       type: "message",
       data: message.join("\n")
@@ -125,11 +133,11 @@ var dbFunctions = {
   checkActive: function (ids = null) {
     let sql = null;
     if (ids === 'first') {
-      sql = "SELECT `user`, `active` from `active`;";
+      sql = `SELECT user, active from active;`;
     } else if (ids && ids !== 'first') {
-      sql = "SELECT `user`, active` FROM `active` WHERE `id` IN (" + ids.join(',') + ");";
+      sql = `SELECT user, active FROM active WHERE id IN (` + ids.join(',') + `);`;
     } else {
-      sql = "SELECT `user`, `active` FROM `active` WHERE `updated` > CURRENT_TIMESTAMP() - INTERVAL 5 MINUTE;";
+      sql = `SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL 5 MINUTE;`;
     }
     conn.query(sql).then(res => {
       const roleMessage = {

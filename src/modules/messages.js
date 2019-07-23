@@ -1,8 +1,8 @@
 exports.respond = async (client, message) => {
     let type = message.type;
     let data = message.data;
-    client.logger.log(`received ${type} message with data:`);
-    client.logger.log(data);
+    client.logger.debug(`received ${type} message with data:`);
+    client.logger.debug(data);
     switch (type) {
         case "getMembers":
             client.populateDB(client.config.server.serverId);

@@ -23,6 +23,9 @@ function init() {
           data: 0
         };
         process.send(message);
+      } else {
+        dbFunctions.checkActive();
+
       }
     }).catch(err => {
       if (err.errno == 1146) {
@@ -32,7 +35,7 @@ function init() {
       }
     });
 
-  dbFunctions.checkActive('first');
+
 
   setInterval(function () {
     dbFunctions.checkActive();
@@ -148,10 +151,12 @@ var dbFunctions = {
         if (item.active === 0) roleMessage.remove.push(item.user);
         if (item.active === 1) roleMessage.add.push(item.user);
       });
-      process.send({
-        type: "updateSubscription",
-        data: JSON.stringify(roleMessage)
-      });
+      if (roleMessage.add.length > 0 || roleMessage.remove.length > 0) {
+        process.send({
+          type: "updateSubscription",
+          data: JSON.stringify(roleMessage)
+        });
+      }
     }).catch(err => {
       logger.error(err);
     });

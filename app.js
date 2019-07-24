@@ -25,16 +25,24 @@ client.functions = require(__dirname + "/src/modules/functions.js")(client);
 client.pool = require(__dirname + "/src/modules/db.js")(client);
 
 //webserver starting and handeling
+
 client.server = cp.fork(__dirname + '/src/process/webserver.js');
 client.server.send('start');
-client.server.on('message', (m) => {
+client.server.on('message', m => {
     messages.respond(client, m);
 });
+client.server.on('error', err => {
+    client.logger.error(err);
+});
+
 
 //handle the database watcher thread 
 client.database = cp.fork(__dirname + '/src/process/database.js');
 client.database.on('message', (m) => {
     messages.respond(client, m);
+});
+client.database.on('error', err => {
+    client.logger.error(err);
 });
 
 client.commands = new Enmap();

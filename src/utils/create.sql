@@ -3,14 +3,6 @@
 /*!50503 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-CREATE TABLE `active` (
-  `tag` VARCHAR(45) NULL COLLATE 'utf8mb4_unicode_ci',
-  `user` VARCHAR(18) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-  `final` TIMESTAMP NOT NULL,
-  `updated` TIMESTAMP NULL,
-  `final_id` INT(11) NOT NULL,
-  `active` INT(1) NOT NULL
-) ENGINE = MyISAM;
 CREATE TABLE IF NOT EXISTS `bot` (
   `version` int(2) NOT NULL,
   `populated` int(1) DEFAULT 0,
@@ -74,6 +66,10 @@ from
         `b`.`end` is null
     ) `b` on(`a`.`id` = `b`.`user`)
   ) WITH LOCAL CHECK OPTION;
+INSERT INTO
+  `bot` (`version`)
+VALUES
+  (1);
   /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
   /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
   /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

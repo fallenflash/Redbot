@@ -1,22 +1,20 @@
 module.exports = function config(configuration) {
+    const botS = configuration.bot;
+    if (!botS.ownerID) throw "Please set Bot Owner Id in config.ini";
+    if (!botS.token) throw "Please set Bot Token in config.ini";
     const config = {
 
         // Bot Owner, level 10 by default. A User ID. Should never be anything else than the bot owner's ID.
-        ownerID: configuration.bot.ownerId ? configuration.bot.ownerID : function () {
-            throw "Please set the Owner Id in the config file"
-        },
+        ownerID: botS.ownerId,
 
         // Bot Admins, level 9 by default. Array of user ID strings.
-        admins: configuration.bot.adminIds ? configuration.bot.adminIds : [],
+        admins: botS.adminIds,
 
         // Bot Support, level 8 by default. Array of user ID strings
-        support: configuration.bot.support ? configuration.bot.support : [],
+        support: botS.support,
 
         // Your Bot's Token. Available on https://discordapp.com/developers/applications/me
-        token: configuration.bot.token ? configuration.bot.token : function () {
-            throw "Please set the Bot Token in the config file."
-        },
-
+        token: botS.token,
         // Default per-server settings. New guilds have these settings. 
 
         // DO NOT LEAVE ANY OF THESE BLANK, AS YOU WILL NOT BE ABLE TO UPDATE THEM
@@ -30,24 +28,22 @@ module.exports = function config(configuration) {
             connections: configuration.database.connections ? configuration.database.connections : 10
         },
         bot: {
-            clientId: configuration.bot.clientId ? configuration.bot.clientId : "",
-            description: configuration.bot.description ? configuration.bot.description : "The reddest of all the bots",
-            prefix: configuration.bot.prefix ? configuration.bot.prefix : "-",
-            ready: configuration.bot.ready ? configuration.bot.ready : "Bot is Ready!!!",
-            defaultChannel: configuration.bot.defaultChannel ? configuration.bot.defaultChannel : "344495686789758977",
-            logChannel: configuration.bot.logChannel ? configuration.bot.logChannel : "439983619633577984",
-            admins: configuration.bot.adminIds ? configuration.bot.adminIds : [],
-            support: configuration.bot.support ? configuration.bot.support : []
+            clientId: botS.clientId ? botS.clientId : "",
+            description: botS.description ? botS.description : "The reddest of all the bots",
+            prefix: botS.prefix ? botS.prefix : "-",
+            ready: botS.ready ? botS.ready : "I'm Ready!!!",
+            logChannel: botS.logChannel ? botS.logChannel : "439983619633577984",
         },
         server: {
             serverId: configuration.server.serverId ? configuration.server.serverId : "344495686789758976",
-            modRole: configuration.bot.modRole ? configuration.bot.modRole : "Moderator",
+            defaultChannel: configuration.server.defaultChannel ? configuration.server.defaultChannel : "344495686789758977",
+            modRole: configuration.server.modRole ? configuration.server.modRole : "Moderator",
             subscriberRole: configuration.server.subscriberRole ? configuration.server.subscriberRole : "586232162815180820",
             welcomeChannel: configuration.server.welcomeChannel ? configuration.server.welcomeChannel : "welcome",
             welcomeMessage: configuration.server.welcomeMessage ? configuration.server.welcomeMessage : "Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D",
             welcomeEnabled: configuration.server.welcomeEnabled ? configuration.server.welcomeEnabled : "false",
             systemNotice: configuration.server.systemNotice ? configuration.server.systemNotice : "true",
-            adminRole: configuration.bot.adminRole ? configuration.bot.adminRole : "Team Rocket"
+            adminRole: configuration.server.adminRole ? configuration.server.adminRole : "Team Rocket"
         },
         webserver: {
             port: configuration.webServer.port ? configuration.webServer.port : 7654
@@ -115,14 +111,14 @@ module.exports = function config(configuration) {
                 name: "Bot Support",
                 // The check is by reading if an ID is part of this array. Yes, this means you need to
                 // change this and reboot the bot to add a support user. Make it better yourself!
-                check: (message) => message.client.config.bot.support.includes(message.author.id)
+                check: (message) => message.client.config.support.includes(message.author.id)
             },
 
             // Bot Admin has some limited access like rebooting the bot or reloading commands.
             {
                 level: 9,
                 name: "Bot Admin",
-                check: (message) => message.client.config.bot.admins.includes(message.author.id)
+                check: (message) => message.client.config.admins.includes(message.author.id)
             },
 
             // This is the bot owner, this should be the highest permission level available.

@@ -18,7 +18,13 @@ exports.respond = async (client, message) => {
             for (let i = 0; i < data.add.length; i++) {
                 client.addRole(data.add[i], role)
                     .then(res => {
-                        if (res) client.logger.log(`${res.member} ${res.role} status ${res.status}`);
+                        if (res) {
+                            if (res.status === 'updated') {
+                                client.logger.log(`${res.member} ${res.role} status ${res.status}`);
+                            } else {
+                                client.logger.debug(`${res.member} ${res.role} status ${res.status}`);
+                            }
+                        }
                     })
                     .catch(err => {
                         client.logger.warn(err);
@@ -27,7 +33,13 @@ exports.respond = async (client, message) => {
             for (let i = 0; i < data.remove.length; i++) {
                 client.removeRole(data.remove[i], role)
                     .then(res => {
-                        if (res) client.logger.log(`${res.member} ${res.role} status ${res.status}`);
+                        if (res) {
+                            if (res.status === 'updated') {
+                                client.logger.log(`${res.member} ${res.role} status ${res.status}`);
+                            } else {
+                                client.logger.debug(`${res.member} ${res.role} status ${res.status}`);
+                            }
+                        }
                     })
                     .catch(err => {
                         client.logger.warn(err);

@@ -8,7 +8,7 @@ module.exports = (client) => {
             if (!member.roles.has(role.id)) {
                 await member.addRole(role)
                     .catch((err) => {
-                        throw new Error(err)
+                        throw new Error(err);
                     });
                 return {
                     member: member.displayName,
@@ -25,7 +25,7 @@ module.exports = (client) => {
         } else {
             return false;
         }
-    }
+    };
     client.removeRole = async (user, role) => {
         const guild = client.guilds.get(client.config.server.serverId);
         role = guild.roles.get(role);
@@ -34,7 +34,7 @@ module.exports = (client) => {
             if (member.roles.has(role.id)) {
                 await member.removeRole(role)
                     .catch((err) => {
-                        throw new Error(err)
+                        throw new Error(err);
                     });
                 return {
                     member: member.displayName,
@@ -50,7 +50,7 @@ module.exports = (client) => {
             }
         }
         return false;
-    }
+    };
     client.findMemberByName = async (user, guild = client.config.server.serverId) => {
         const regex = /((?!_)[^@#:]{1,32}(?<!_))#?(\d{4})?/gui;
         const match = regex.exec(user.trim().toLowerCase());
@@ -74,7 +74,7 @@ module.exports = (client) => {
         }
 
 
-    }
+    };
     /*
     PERMISSION LEVEL FUNCTION
     This is a very basic permission system for commands which uses "levels"
@@ -109,26 +109,26 @@ module.exports = (client) => {
     // And then they're stuck because the default settings are also gone.
     // So if you do that, you're resetting your defaults. Congrats.
     const defaultSettings = {
-        prefix: client.config.bot.prefix ? client.config.bot.prefix : "-",
-        modLogChannel: client.config.server.modLogChannel ? client.config.server.modLogChannel : "mod-log",
-        modRole: client.config.server.modRole ? client.config.server.modRole : "Moderator",
-        adminRole: client.config.server.adminRole ? client.config.server.adminRole : "Administrator",
-        systemNotice: client.config.bot.systemNotice ? client.config.bot.systemNotice : "true",
-        welcomeChannel: client.config.server.welcomeChannel ? client.config.server.welcomeChannel : "welcome",
-        welcomeMessage: client.config.server.welcomeMessage ? client.config.server.welcomeMessage : "Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D",
-        welcomeEnabled: client.config.server.welcomeEnabled ? client.config.server.welcomeEnabled : "false"
+        prefix: client.config.bot.prefix ? client.config.bot.prefix : '-',
+        modLogChannel: client.config.server.modLogChannel ? client.config.server.modLogChannel : 'mod-log',
+        modRole: client.config.server.modRole ? client.config.server.modRole : 'Moderator',
+        adminRole: client.config.server.adminRole ? client.config.server.adminRole : 'Administrator',
+        systemNotice: client.config.bot.systemNotice ? client.config.bot.systemNotice : 'true',
+        welcomeChannel: client.config.server.welcomeChannel ? client.config.server.welcomeChannel : 'welcome',
+        welcomeMessage: client.config.server.welcomeMessage ? client.config.server.welcomeMessage : 'Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D',
+        welcomeEnabled: client.config.server.welcomeEnabled ? client.config.server.welcomeEnabled : 'false'
     };
 
     // getSettings merges the client defaults with the guild settings. guild settings in
     // enmap should only have *unique* overrides that are different from defaults.
     client.getSettings = (guild) => {
-        client.settings.ensure("default", defaultSettings);
-        if (!guild) return client.settings.get("default");
+        client.settings.ensure('default', defaultSettings);
+        if (!guild) return client.settings.get('default');
         const guildConf = client.settings.get(guild.id) || {};
         // This "..." thing is the "Spread Operator". It's awesome!
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         return ({
-            ...client.settings.get("default"),
+            ...client.settings.get('default'),
             ...guildConf
         });
     };
@@ -148,7 +148,7 @@ module.exports = (client) => {
             const collected = await msg.channel.awaitMessages(filter, {
                 max: 1,
                 time: limit,
-                errors: ["time"]
+                errors: ['time']
             });
             return collected.first().content;
         } catch (e) {
@@ -164,18 +164,20 @@ module.exports = (client) => {
     and stringifies objects!
     This is mostly only used by the Eval and Exec commands.
     */
-    client.clean = async (client, text) => {
-        if (text && text.constructor.name == "Promise")
+    client.clean = async (text) => {
+        if (text && text.constructor.name == 'Promise') {
             text = await text;
-        if (typeof evaled !== "string")
-            text = require("util").inspect(text, {
+        }
+        if (typeof evaled !== 'string') {
+            text = require('util').inspect(text, {
                 depth: 1
             });
+        }
 
         text = text
-            .replace(/`/g, "`" + String.fromCharCode(8203))
-            .replace(/@/g, "@" + String.fromCharCode(8203))
-            .replace(client.token, "mfa.VkO_2G4Qv3T--NO--lWetW_tjND--TOKEN--QFTm6YGtzq9PH--4U--tG0");
+            .replace(/`/g, '`' + String.fromCharCode(8203))
+            .replace(/@/g, '@' + String.fromCharCode(8203))
+            .replace(client.token, 'mfa.VkO_2G4Qv3T--NO--lWetW_tjND--TOKEN--QFTm6YGtzq9PH--4U--tG0');
 
         return text;
     };
@@ -223,8 +225,8 @@ module.exports = (client) => {
     client.populateDB = (guild) => {
         guild = client.guilds.get(guild);
         guild.fetchMembers();
-        userDB = guild.members.filter(member => !member.user.bot).map((m) => {
-            let member = [
+        const userDB = guild.members.filter(member => !member.user.bot).map((m) => {
+            const member = [
                 m.id,
                 m.user.username,
                 m.user.discriminator,
@@ -234,55 +236,55 @@ module.exports = (client) => {
             ];
             return member;
         });
-        message = {
-            type: "fillDb",
+        const message = {
+            type: 'fillDb',
             data: JSON.stringify(userDB)
         };
         client.database.send(message);
 
-    }
+    };
 
     /* MISCELANEOUS NON-CRITICAL FUNCTIONS */
 
     // EXTENDING NATIVE TYPES IS BAD PRACTICE. Why? Because if JavaScript adds this
     // later, this conflicts with native code. Also, if some other lib you use does
     // this, a conflict also occurs. KNOWING THIS however, the following 2 methods
-    // are, we feel, very useful in code. 
+    // are, we feel, very useful in code.
 
-    // <String>.toPropercase() returns a proper-cased string such as: 
+    // <String>.toPropercase() returns a proper-cased string such as:
     // "Mary had a little lamb".toProperCase() returns "Mary Had A Little Lamb"
-    Object.defineProperty(String.prototype, "toProperCase", {
-        value: function () {
+    Object.defineProperty(String.prototype, 'toProperCase', {
+        value: function() {
             return this.replace(/([^\W_]+[^\s-]*) */g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
         }
     });
 
     // <Array>.random() returns a single random element from an array
     // [1, 2, 3, 4, 5].random() can return 1, 2, 3, 4 or 5.
-    Object.defineProperty(Array.prototype, "random", {
-        value: function () {
+    Object.defineProperty(Array.prototype, 'random', {
+        value: function() {
             return this[Math.floor(Math.random() * this.length)];
         }
     });
 
     // `await client.wait(1000);` to "pause" for 1 second.
-    client.wait = require("util").promisify(setTimeout);
+    client.wait = require('util').promisify(setTimeout);
 
     // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
-    process.on("uncaughtException", (err) => {
-        const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
-        let errorArray = errorMsg.split("\n");
+    process.on('uncaughtException', (err) => {
+        const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, 'g'), './');
+        const errorArray = errorMsg.split('\n');
         errorArray[0] = `Uncaught Exception: ${errorArray[0]}`;
-        for (i = 0; i < errorArray.length; i++) {
+        for (let i = 0; i < errorArray.length; i++) {
             client.logger.error(errorArray[i].trim());
         }
         console.error(err);
-        // Always best practice to let the code crash on uncaught exceptions. 
+        // Always best practice to let the code crash on uncaught exceptions.
         // Because you should be catching them anyway.
         process.exit(1);
     });
 
-    process.on("unhandledRejection", err => {
+    process.on('unhandledRejection', err => {
         client.logger.error(`Unhandled rejection: ${err}`);
         console.error(err);
     });

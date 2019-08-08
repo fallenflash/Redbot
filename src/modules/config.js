@@ -5,7 +5,7 @@ module.exports = function config(configuration) {
     const config = {
 
         // Bot Owner, level 10 by default. A User ID. Should never be anything else than the bot owner's ID.
-        ownerID: botS.ownerId,
+        ownerID: botS.ownerID,
 
         // Bot Admins, level 9 by default. Array of user ID strings.
         admins: botS.adminIds,
@@ -128,7 +128,7 @@ module.exports = function config(configuration) {
                 level: 10,
                 name: "Bot Owner",
                 // Another simple check, compares the message author id to the one stored in the config file.
-                check: (message) => message.client.config.bot.ownerID === message.author.id
+                check: (message) => message.client.config.ownerID === message.author.id
             }
         ]
     };

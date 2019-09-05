@@ -16,7 +16,9 @@
         "curly": ["error", "multi-line", "consistent"],
         "dot-location": ["error", "property"],
         "handle-callback-err": "off",
-        "indent": ["error", 4],
+        "indent": ["error", 4, {
+            "SwitchCase": 1
+        }],
         "max-nested-callbacks": ["error", {
             "max": 4
         }],

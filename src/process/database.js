@@ -115,14 +115,14 @@ const dbFunctions = {
         const sql = 'INSERT IGNORE INTO users (id, username, discrim, joined, created, avatar) VALUES ?';
         const sql2 = 'INSERT IGNORE INTO subscriptions (user, created_by) VALUES ?';
         conn.query(sql, [values1], function(err, result) {
-            if (err) throw err;
+            if (err) logger.error(err);
             if (result) logger.log('inserted ' + result.affectedRows + ' users into initial DB.');
         });
         conn.query(sql2, [values2], function(err, result) {
-            if (err) throw err;
+            if (err) logger.error(err);
             if (result) logger.log('created ' + result.affectedRows + ' starter subscriptions for placeholding');
         });
-        conn.query('UPDATE bot set populated = \'1\'');
+        conn.query('UPDATE bot set populated = 1');
         process.send({
             type: 'message',
             data: message.join('\n')

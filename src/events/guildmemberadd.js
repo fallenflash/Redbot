@@ -3,11 +3,11 @@ module.exports = (client, member) => {
         return client.logger.log(`Bot ${member.displayName} joined the guild, no action taken`);
     }
     const id = member.id;
-    client.pool.query(`SELECT * FROM users WHERE id = ${id}`, function (err, res) {
+    client.pool.query(`SELECT * FROM users WHERE id = ${id}`, function(err, res) {
         if (err) client.logger.warn(`error finding member ${member.displayName} in database`);
         if (res && res.length === 0) {
-            const sql = "INSERT IGNORE INTO users (id, username, discrim, joined, created, avatar) VALUES ?";
-            const sql2 = "INSERT IGNORE INTO subscriptions (user, created_by) VALUES ?";
+            const sql = 'INSERT IGNORE INTO users (id, username, discrim, joined, created, avatar) VALUES ?';
+            const sql2 = 'INSERT IGNORE INTO subscriptions (user, created_by) VALUES ?';
             const values = {
                 one: [
                     member.id,
@@ -22,17 +22,17 @@ module.exports = (client, member) => {
                     'initial'
                 ]
             };
-            client.pool.query(sql, [values.one], function (err, result) {
-                if (err) throw err;
-                if (result.affectedRows === 1) {
+            client.pool.query(sql, [values.one], function(err, re) {
+                if (err) client.logger.error(err);
+                if (re.affectedRows === 1) {
 
-                    client.pool.query(sql2, [values.two], function (err, result) {
-                        if (err) throw err;
-                        if (result.affectedRows) logger.log(`added ${member.displayName} to the database`);
+                    client.pool.query(sql2, [values.two], function(err, result) {
+                        if (err) client.logger.error(err);
+                        if (result.affectedRows) client.logger.log(`added ${member.displayName} to the database`);
                     });
                 }
             });
         }
-    })
+    });
 
 };

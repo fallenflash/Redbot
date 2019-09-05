@@ -17,32 +17,32 @@ process.on('message', async (m) => {
 app.use(helmet());
 app.use(bodyParser.json());
 
-app.post('/woocomerce', function (req, res) {
+app.post('/woocomerce', function(req, res) {
 
     res.json({
         message: 'Message Received by Redbot'
     });
     if (config.webServer.webhookSource === req.headers['x-wc-webhook-source'] ||
         config.webServer.webhookSource === 'false') {
-        if (req.headers['x-wc-webhook-resource'] !== "order") {
+        if (req.headers['x-wc-webhook-resource'] !== 'order') {
             logger.debug(`webhook received for resources: ${req.headers['x-wc-webhook-resource']} ignored.`);
 
-        } else {
-            if (req.body.status === "processing") {
-                let message = {
-                    wooCommerceID: req.body.id,
-                    created: req.body.date_created_gmt,
-                    user: req.body.customer_note,
-                    purchases: req.body.line_items.map(item => item.name)
+        } else
+        if (req.body.status === 'processing') {
+            const message = {
+                wooCommerceID: req.body.id,
+                created: req.body.date_created_gmt,
+                user: req.body.customer_note,
+                purchases: req.body.line_items.map(item => item.name)
 
-                };
-                process.send({
-                    "type": "webhookReceived",
-                    "data": JSON.stringify(message)
-                });
+            };
+            process.send({
+                'type': 'webhookReceived',
+                'data': JSON.stringify(message)
+            });
 
-            }
         }
+
     } else {
         logger.warn(`Webhook from ${req.headers['x-wc-webhook-source']} received. source not verified`);
 
@@ -53,7 +53,7 @@ app.post('/woocomerce', function (req, res) {
 // Start listening on the configured port.
 function start() {
 
-    app.listen(config.webServer.port, function () {
+    app.listen(config.webServer.port, function() {
         process.send({
             type: 'message',
             data: 'server has started on port ' + config.webServer.port + '.'

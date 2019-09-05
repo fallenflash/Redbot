@@ -25,8 +25,6 @@ module.exports = (client) => {
                 client.logger.log('Database connection was refused.', 'error');
             }
         }
-
-
         if (connection) connection.release();
 
     });

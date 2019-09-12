@@ -43,7 +43,8 @@ module.exports = function config(configuration) {
             welcomeMessage: configuration.server.welcomeMessage ? configuration.server.welcomeMessage : 'Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D',
             welcomeEnabled: configuration.server.welcomeEnabled ? configuration.server.welcomeEnabled : 'false',
             systemNotice: configuration.server.systemNotice ? configuration.server.systemNotice : 'true',
-            adminRole: configuration.server.adminRole ? configuration.server.adminRole : 'Team Rocket'
+            adminRole: configuration.server.adminRole ? configuration.server.adminRole : 'Team Rocket',
+            polingTime: configuration.server.polingTime ? configuration.server.polingTime : '30000'
         },
         webserver: {
             port: configuration.webServer.port ? configuration.webServer.port : 7654

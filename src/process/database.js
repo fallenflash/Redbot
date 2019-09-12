@@ -39,7 +39,7 @@ function init() {
 
     setInterval(function() {
         dbFunctions.checkActive();
-    }, 300000);
+    }, config.server.polingTime);
 
 }
 
@@ -75,13 +75,12 @@ const dbFunctions = {
         const sql = fs.readFileSync(__dirname + '/../utils/create.sql').toString();
         const sqlArray = sql.split(';');
         for (let i = 0; i < sqlArray.length; i++) {
-
-            conn.query(sqlArray[i])
-                .then(res => {
-                    logger.debug(res);
-                }).catch(err => {
-                    logger.error(err);
+            if (sqlArray[i].length > 0) {
+                conn.syncQuery(sqlArray[i], function(err, res) {
+                    if (err) logger.error([err, sqlArray[i]]);
+                    if (res) logger.log(res);
                 });
+            }
         }
 
         logger.log('database created');
@@ -94,7 +93,6 @@ const dbFunctions = {
     populate: function(users) {
         users = JSON.parse(users);
         let i = 0;
-        const message = [];
         const values1 = [];
         const values2 = [];
         for (i = 0; i < users.length; i++) {
@@ -114,20 +112,24 @@ const dbFunctions = {
         }
         const sql = 'INSERT IGNORE INTO users (id, username, discrim, joined, created, avatar) VALUES ?';
         const sql2 = 'INSERT IGNORE INTO subscriptions (user, created_by) VALUES ?';
-        conn.query(sql, [values1], function(err, result) {
-            if (err) logger.error(err);
-            if (result) logger.log('inserted ' + result.affectedRows + ' users into initial DB.');
-        });
-        conn.query(sql2, [values2], function(err, result) {
-            if (err) logger.error(err);
-            if (result) logger.log('created ' + result.affectedRows + ' starter subscriptions for placeholding');
-        });
-        conn.query('UPDATE bot set populated = 1');
-        process.send({
-            type: 'message',
-            data: message.join('\n')
-        });
-        dbFunctions.checkActive();
+        conn.query(sql, [values1])
+            .then((res) => {
+                logger.log('inserted ' + res.affectedRows + ' users into initial DB.');
+            })
+            .catch((err) => {
+                logger.error(err);
+            });
+        conn.query(sql2, [values2])
+            .then((res) => {
+                logger.log('created ' + res.affectedRows + ' starter subscriptions for placeholding');
+            })
+            .catch((err) => {
+                logger.error(err);
+            });
+        conn.query('UPDATE bot set populated = 1')
+            .then(() => {
+                dbFunctions.checkActive('first');
+            });
     },
     checkActive: function(ids = null) {
         let sql = null;
@@ -138,23 +140,24 @@ const dbFunctions = {
         } else {
             sql = 'SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL 5 MINUTE;';
         }
-        conn.query(sql).then(res => {
-            const roleMessage = {
-                add: [],
-                remove: []
-            };
-            res.forEach((item) => {
-                if (item.active === 0) roleMessage.remove.push(item.user);
-                if (item.active === 1) roleMessage.add.push(item.user);
-            });
-            if (roleMessage.add.length > 0 || roleMessage.remove.length > 0) {
-                process.send({
-                    type: 'updateSubscription',
-                    data: JSON.stringify(roleMessage)
+        conn.query(sql)
+            .then(res => {
+                const roleMessage = {
+                    add: [],
+                    remove: []
+                };
+                res.forEach((item) => {
+                    if (item.active === 0) roleMessage.remove.push(item.user);
+                    if (item.active === 1) roleMessage.add.push(item.user);
                 });
-            }
-        }).catch(err => {
-            logger.error(err);
-        });
+                if (roleMessage.add.length > 0 || roleMessage.remove.length > 0) {
+                    process.send({
+                        type: 'updateSubscription',
+                        data: JSON.stringify(roleMessage)
+                    });
+                }
+            }).catch(err => {
+                logger.error(err);
+            });
     }
 };

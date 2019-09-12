@@ -28,7 +28,7 @@ module.exports = (client) => {
         if (connection) connection.release();
 
     });
-
+    pool.syncQuery = pool.query;
     pool.query = util.promisify(pool.query);
 
     return pool;

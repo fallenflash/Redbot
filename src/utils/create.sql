@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id`),
   KEY `joined` (`joined`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-DROP TABLE IF EXISTS `active`;
 CREATE ALGORITHM = MERGE VIEW `active` AS
 select
   `a`.`tag` AS `tag`,

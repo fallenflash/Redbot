@@ -77,7 +77,7 @@ exports.run = async (client, message, args) => {
                 if (ids.length > 0 && results.affectedRows == ids.length) {
                     result = 'All subscriptions successfully edited.';
                 } else if (mentions[0] == 'all' || mentions.length == 0) {
-                    result = 'Subtracted ${addtime} from every members subscriptions';
+                    result = `Subtracted ${addtime} from every members subscriptions`;
                 } else if (mentions[0] == 'active') {
                     result = 'Decreased all active subscription time by ${addtime}';
                 }

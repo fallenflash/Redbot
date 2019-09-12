@@ -7,22 +7,6 @@ exports.run = (client, message, args) => {
     let values = null;
     let sql = null;
     let result = null;
-    if (users) {
-        users.forEach((u) => {
-            ids.push(u.id);
-        });
-    }
-    if (roles) {
-        roles.forEach((r) => {
-            r.members.map(m => m.id).forEach(function(roleMember) {
-                ids.push(roleMember);
-            });
-        });
-    }
-    if (ids.length === 0) {
-        client.logger.log('cant recognize mentions');
-        alert.push('I don\'t recognize who your trying to add time too');
-    }
     if (['m', 'months', 'month', 'mth'].includes(args[1])) {
         args[0] *= 30;
         args[1] = 'days';
@@ -36,7 +20,22 @@ exports.run = (client, message, args) => {
         alert.push('I cant recognize the time');
         client.logger.log('time format unrecognized.  given time ' + args[0] + ',' + args[1], 'error');
     }
-    const mentions = args.slice(2);
+    let mentions = args.slice(2);
+    if (users) {
+        users.forEach((u) => {
+            ids.push(u.id);
+        });
+    }
+    if (roles) {
+        roles.forEach((r) => {
+            r.members.map(m => m.id).forEach(function(roleMember) {
+                ids.push(roleMember);
+            });
+        });
+    }
+    if ((mentions !== 'all' || mentions !== 'active') && ids.length > 0) {
+        mentions = ids;
+    }
     if (mentions.length === 1 && mentions[0] === 'active') {
         sql = `UPDATE 
         subscriptions a inner join ( 
@@ -58,7 +57,7 @@ exports.run = (client, message, args) => {
             ON a.user = b.user and a.end = b.end
             SET a.end = DATE_ADD( a.end,  INTERVAL ? SECOND);`;
         values = timeDiff;
-    } else if (mentions.length >= 1 && mentions[0] !== 'active' && mentions[0] !== 'all;') {
+    } else if (mentions.length >= 1 && mentions[0] !== 'active' && mentions[0] !== 'all') {
 
         sql = `UPDATE 
                 subscriptions a INNER JOIN (
@@ -83,7 +82,7 @@ exports.run = (client, message, args) => {
                 if (ids.length > 0 && results.affectedRows === ids.length) {
                     result = 'All subscriptions successfully edited.';
                 } else if (mentions[0] === 'all' || mentions.length === 0) {
-                    result = 'added ${addtime} to every members subscriptions';
+                    result = `added ${addtime} to every members subscriptions`;
                 } else if (mentions[0] === 'active') {
                     result = 'increased all active subscription time by ${addtime}';
                 }

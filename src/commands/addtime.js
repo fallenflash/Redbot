@@ -84,7 +84,7 @@ exports.run = (client, message, args) => {
                 } else if (mentions[0] === 'all' || mentions.length === 0) {
                     result = `added ${addtime} to every members subscriptions`;
                 } else if (mentions[0] === 'active') {
-                    result = 'increased all active subscription time by ${addtime}';
+                    result = `increased all active subscription time by ${addtime}`;
                 }
                 client.database.send({
                     type: 'checkRoles',

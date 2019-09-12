@@ -9,6 +9,7 @@ const trick = {
     logger: logger
 };
 const conn = require('../modules/db.js')(trick);
+const polingTime = config.server.polingTime ? config.server.polingTime : 300;
 
 function init() {
     conn.query('SELECT `version`, `populated` FROM `bot`;')
@@ -25,7 +26,7 @@ function init() {
                 };
                 process.send(message);
             } else {
-                dbFunctions.checkActive();
+                dbFunctions.checkActive('first');
 
             }
         }).catch(err => {
@@ -39,7 +40,7 @@ function init() {
 
     setInterval(function() {
         dbFunctions.checkActive();
-    }, config.server.polingTime);
+    }, polingTime * 1000);
 
 }
 
@@ -138,7 +139,7 @@ const dbFunctions = {
         } else if (ids && ids !== 'first') {
             sql = 'SELECT user, active FROM active WHERE id IN (' + ids.join(',') + ');';
         } else {
-            sql = 'SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL 5 MINUTE;';
+            sql = `SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL ${polingTime} SECOND;`;
         }
         conn.query(sql)
             .then(res => {

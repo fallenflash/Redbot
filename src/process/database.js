@@ -91,7 +91,7 @@ const dbFunctions = {
         };
         process.send(message);
     },
-    populate: function(users) {
+    populate: async function(users) {
         users = JSON.parse(users);
         let i = 0;
         const values1 = [];
@@ -113,22 +113,20 @@ const dbFunctions = {
         }
         const sql = 'INSERT IGNORE INTO users (id, username, discrim, joined, created, avatar) VALUES ?';
         const sql2 = 'INSERT IGNORE INTO subscriptions (user, created_by) VALUES ?';
-        conn.query(sql, [values1])
-            .then((res) => {
-                logger.log('inserted ' + res.affectedRows + ' users into initial DB.');
-            })
+        const userInsert = await conn.query(sql, [values1])
             .catch((err) => {
                 logger.error(err);
             });
-        conn.query(sql2, [values2])
-            .then((res) => {
-                logger.log('created ' + res.affectedRows + ' starter subscriptions for placeholding');
-            })
+        const subInsert = await conn.query(sql2, [values2])
             .catch((err) => {
                 logger.error(err);
             });
+        logger.log('inserted ' + userInsert.affectedRows + ' users into initial DB.');
+        logger.log('created ' + subInsert.affectedRows + ' starter subscriptions for placeholding');
+
         conn.query('UPDATE bot set populated = 1')
             .then(() => {
+                logger.log('database populated, checking active subscriptions');
                 dbFunctions.checkActive('first');
             });
     },

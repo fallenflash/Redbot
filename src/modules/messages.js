@@ -12,6 +12,7 @@ exports.respond = async (client, message) => {
             break;
         case 'updateSubscription': {
             data = JSON.parse(data);
+            console.log(data);
             const error = [];
             /* const guild = client.guilds.get(client.config.server.serverId); */
             const role = client.config.server.subscriberRole;

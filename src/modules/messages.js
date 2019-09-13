@@ -1,4 +1,5 @@
 exports.respond = async (client, message) => {
+    message = JSON.parse(message);
     const type = message.type;
     let data = message.data;
     client.logger.debug(`received ${type} message with data:`);
@@ -11,7 +12,6 @@ exports.respond = async (client, message) => {
             client.logger.log(data);
             break;
         case 'updateSubscription': {
-            data = JSON.parse(data);
             const error = [];
             /* const guild = client.guilds.get(client.config.server.serverId); */
             const role = client.config.server.subscriberRole;

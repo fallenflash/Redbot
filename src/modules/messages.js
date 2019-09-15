@@ -1,4 +1,5 @@
 exports.respond = async (client, message) => {
+    message = JSON.parse(message);
     const type = message.type;
     let data = message.data;
     client.logger.debug(`received ${type} message with data:`);

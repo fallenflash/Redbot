@@ -83,7 +83,7 @@ exports.run = async (client, message, args) => {
                 }
                 client.database.send({
                     type: 'checkRoles',
-                    message: ids.length > 0 ? ids.join(',') : null
+                    data: ids.length > 0 ? ids.join(',') : null
                 });
                 message.channel.send(result);
             }).catch(err => {

@@ -73,21 +73,19 @@ exports.run = async (client, message, args) => {
 
         await client.pool.query(sql, values)
             .then(results => {
-                console.log(results);
-                if (ids.length > 0 && results.affectedRows == ids.length) {
+                if (ids.length > 0 && results.affectedRows === ids.length) {
                     result = 'All subscriptions successfully edited.';
                 } else if (mentions[0] == 'all' || mentions.length == 0) {
                     result = `Subtracted ${addtime} from every members subscriptions`;
                 } else if (mentions[0] == 'active') {
-                    result = 'Decreased all active subscription time by ${addtime}';
+                    result = `Decreased all active subscription time by ${addtime}`;
                 }
                 client.database.send({
                     type: 'checkRoles',
-                    message: ids.length > 0 ? ids.join(',') : null
+                    data: ids.length > 0 ? ids.join(',') : null
                 });
                 message.channel.send(result);
             }).catch(err => {
-                console.log(err);
                 client.logger.error('mysql error' + err, 'error');
                 message.channel.send(JSON.stringify([result, alert]));
             });

@@ -135,7 +135,7 @@ const dbFunctions = {
         if (ids === 'first') {
             sql = 'SELECT user, active from active;';
         } else if (ids && ids !== 'first') {
-            sql = 'SELECT user, active FROM active WHERE id IN (' + ids.join(',') + ');';
+            sql = 'SELECT user, active FROM active WHERE id IN (' + ids + ');';
         } else {
             sql = `SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL ${polingTime} SECOND;`;
         }

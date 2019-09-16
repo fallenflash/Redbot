@@ -9,6 +9,6 @@ module.exports = (client) => {
             data: 'ready'
         });
     } else {
-        client.logger.log(message, 'warning');
+        client.logger.warn(message);
     }
 };

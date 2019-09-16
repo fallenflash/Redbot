@@ -52,7 +52,7 @@ exports.run = async (client, message, args) => {
             FROM subscriptions 
             GROUP BY user) b
             ON a.user = b.user and a.end = b.end
-            SET a.end = DATE_ADD( a.end,  INTERVAL ? SECOND);`;
+            SET a.end = DATE_SUB( a.end,  INTERVAL ? SECOND);`;
         values = timeDiff;
     } else if (mentions.length >= 1 && mentions[0] != 'active' && mentions[0] !== 'all;') {
 

@@ -44,7 +44,9 @@ module.exports = function config(configuration) {
             welcomeEnabled: configuration.server.welcomeEnabled ? configuration.server.welcomeEnabled : 'false',
             systemNotice: configuration.server.systemNotice ? configuration.server.systemNotice : 'true',
             adminRole: configuration.server.adminRole ? configuration.server.adminRole : 'Team Rocket',
-            polingTime: configuration.server.polingTime ? configuration.server.polingTime : '30000'
+            polingTime: configuration.server.polingTime ? configuration.server.polingTime : '30000',
+            demoLength: configuration.server.demoLenght ? configuration.server.demoLenght : '24',
+            mapLink: configuration.server.mapLink ? configuration.server.mapLink : 'https://theflashiest.com'
         },
         webserver: {
             port: configuration.webServer.port ? configuration.webServer.port : 7654

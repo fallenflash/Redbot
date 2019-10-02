@@ -8,7 +8,7 @@ module.exports = (client) => {
             if (!member.roles.has(role.id)) {
                 await member.addRole(role)
                     .catch((err) => {
-                        throw new Error(err);
+                        console.logger.error(err);
                     });
                 return {
                     member: member.displayName,
@@ -23,7 +23,9 @@ module.exports = (client) => {
                 };
             }
         } else {
+            client.logger.warn(`member ${user} not found`);
             return false;
+
         }
     };
     client.removeRole = async (user, role) => {
@@ -34,13 +36,15 @@ module.exports = (client) => {
             if (member.roles.has(role.id)) {
                 await member.removeRole(role)
                     .catch((err) => {
-                        throw new Error(err);
+                        client.logger.error(err);
+                    })
+                    .then(() => {
+                        return {
+                            member: member.displayName,
+                            role: role.name,
+                            status: 'updated'
+                        };
                     });
-                return {
-                    member: member.displayName,
-                    role: role.name,
-                    status: 'updated'
-                };
             } else {
                 return {
                     member: member.displayName,

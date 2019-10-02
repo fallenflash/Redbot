@@ -25,9 +25,6 @@ function init() {
                     data: 0
                 };
                 process.send(message);
-            } else {
-                dbFunctions.checkActive('first');
-
             }
         }).catch(err => {
             if (err.errno == 1146) {
@@ -35,13 +32,15 @@ function init() {
             } else {
                 throw err;
             }
+        })
+        .finally(() => {
+            dbFunctions.checkActive('first');
+
+            setInterval(function() {
+                logger.debug(`checking subscriptions, next check in ${polingTime} seconds`);
+                dbFunctions.checkActive(polingTime);
+            }, polingTime * 1000);
         });
-
-
-    setInterval(function() {
-        dbFunctions.checkActive();
-    }, polingTime * 1000);
-
 }
 
 
@@ -130,14 +129,19 @@ const dbFunctions = {
                 dbFunctions.checkActive('first');
             });
     },
-    checkActive: function(ids = null) {
+    checkActive: function(ids) {
         let sql = null;
         if (ids === 'first') {
             sql = 'SELECT user, active from active;';
-        } else if (ids && ids !== 'first') {
-            sql = 'SELECT user, active FROM active WHERE user IN (' + ids + ');';
+        } else if (ids === polingTime) {
+            ids += 1;
+            sql = `SELECT 
+                        user, 
+                        active 
+                    FROM active 
+                    WHERE (final > date_sub(CURRENT_TIMESTAMP(), INTERVAL ${ids} SECOND) AND final < CURRENT_TIMESTAMP()) OR updated > date_sub(CURRENT_TIMESTAMP(), INTERVAL ${ids} SECOND);`;
         } else {
-            sql = `SELECT user, active FROM active WHERE updated > CURRENT_TIMESTAMP() - INTERVAL ${polingTime} SECOND;`;
+            sql = 'SELECT user, active FROM active WHERE user IN (' + ids + ');';
         }
         conn.query(sql)
             .then(res => {

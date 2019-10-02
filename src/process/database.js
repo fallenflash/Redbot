@@ -25,6 +25,9 @@ function init() {
                     data: 0
                 };
                 process.send(message);
+            } else {
+                dbFunctions.checkActive('first');
+
             }
         }).catch(err => {
             if (err.errno == 1146) {
@@ -32,15 +35,12 @@ function init() {
             } else {
                 throw err;
             }
-        })
-        .finally(() => {
-            dbFunctions.checkActive('first');
-
-            setInterval(function() {
-                logger.debug(`checking subscriptions, next check in ${polingTime} seconds`);
-                dbFunctions.checkActive(polingTime);
-            }, polingTime * 1000);
         });
+
+    setInterval(function() {
+        logger.debug(`checking subscriptions, next check in ${polingTime} seconds`);
+        dbFunctions.checkActive(polingTime);
+    }, polingTime * 1000);
 }
 
 

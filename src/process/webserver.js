@@ -17,7 +17,7 @@ process.on('message', async (m) => {
 app.use(helmet());
 app.use(bodyParser.json());
 
-app.post('/woocomerce', function(req, res) {
+app.post('/woocommerce', function(req, res) {
 
     res.json({
         message: 'Message Received by Redbot'
